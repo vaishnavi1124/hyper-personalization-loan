@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Segmentation Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    select, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+    canvas {
+      max-width: 600px;
+      margin-top: 20px;
+    }
+    a.button-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 8px 14px;
+      background: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Customer Segmentation Chart</h1>
+
+  <form method="POST">
+    <label for="run_date">Select Run Date:</label>
+    <select name="run_date" id="run_date" required>
+      <option value="">-- Select Date --</option>
+      {% for date in run_dates %}
+        <option value="{{ date }}" {% if selected_date == date %}selected{% endif %}>{{ date }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Show Chart</button>
+  </form>
+
+  {% if segment_counts %}
+    <canvas id="segmentChart" width="400" height="300"></canvas>
+    <script>
+      const ctx = document.getElementById('segmentChart').getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: {{ segment_counts | map(attribute='cust_segment') | list }},
+          datasets: [{
+            label: 'Number of Customers',
+            data: {{ segment_counts | map(attribute='customer_count') | list }},
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              stepSize: 1
+            }
+          }
+        }
+      });
+    </script>
+  {% endif %}
+
+  <a class="button-link" href="{{ url_for('home') }}">← Back to Home</a>
+</body>
+</html>

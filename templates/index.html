@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Insights and Recommendations</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    .customer-block {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+    .customer-block h2 {
+      margin-top: 0;
+      color: #444;
+    }
+    .probabilities ul,
+    .insights ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .probabilities li,
+    .insights li {
+      margin-bottom: 5px;
+    }
+    .recommendation {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    a.button-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 8px 14px;
+      background: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hyper-Personalisation with GenAI</h1>
+
+  <form id="csvForm" method="POST" enctype="multipart/form-data">
+    <h2>Upload Customer Details CSV File:</h2>
+    <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required>
+    <button type="submit" name="process_csv">Process CSV</button>
+    <div id="uploadStatus" style="margin-top:10px;color:green;font-weight:bold;"></div>
+  </form>
+
+  <script>
+    const fileInput = document.getElementById('csvFileInput');
+    const form = document.getElementById('csvForm');
+    const statusDiv = document.getElementById('uploadStatus');
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length > 0) {
+        statusDiv.textContent = 'File uploaded successfully';
+      } else {
+        statusDiv.textContent = '';
+      }
+    });
+
+    form.addEventListener('submit', function() {
+      statusDiv.textContent = 'Processing...';
+    });
+  </script>
+
+  {% if all_results %}
+    <div style="margin-top:10px;color:green;font-weight:bold;">Process completed successfully</div>
+    <h2>Personalised Recommendations and Insights for All Records</h2>
+    {% for result in all_results %}
+      <div class="customer-block">
+        <h2>{{ result.name }}</h2>
+
+        <div class="recommendation">
+          <strong>Recommendation:</strong><br>
+          {{ result.recommendation | replace('\n', '<br>') | safe }}
+        </div>
+
+        <p><strong>Customer Segment:</strong> {{ result.customer_segment }}</p>
+
+        <div class="probabilities">
+          <strong>Product Probabilities:</strong>
+          <ul>
+            {% for product, probability in result.product_probabilities.items() %}
+              <li>{{ product }}: {{ (probability * 100) | round(2) }}%</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="insights">
+          <strong>Personalised Insights:</strong>
+          <ul>
+            {% for insight in result.insights %}
+              <li>{{ insight }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <p>
+    <a class="button-link" href="{{ url_for('view_results') }}">
+      View All Stored Recommendations
+    </a>
+  </p>
+  <p>
+    <a class="button-link" href="{{ url_for('home') }}">
+      ← Back to Home
+    </a>
+  </p>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recommendation Results & Segment Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    select, button {
+      padding: 6px 10px;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      margin-top: 30px;
+    }
+    th, td {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background-color: #eaeaea;
+    }
+    canvas {
+      background-color: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+    .no-data {
+      color: #888;
+      margin-top: 10px;
+    }
+    a {
+      text-decoration: none;
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <h1>Recommendation Results & Segment Chart</h1>
+
+  <!-- Recommendation Results Table -->
+  {% if all_results %}
+    <h2>All Recommendation Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer ID</th>
+          <th>Name</th>
+          <th>Segment</th>
+          <th>Credit Card Prob (%)</th>
+          <th>Home Loan Prob (%)</th>
+          <th>Personal Loan Prob (%)</th>
+          <th>Credit Card Limit</th>
+          <th>Home Loan Limit</th>
+          <th>Personal Loan Limit</th>
+          <th>Recommended Products</th>
+          <th>Insight</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for res in all_results %}
+        <tr>
+          <td>{{ res.cust_id }}</td>
+          <td>{{ res.cust_name }}</td>
+          <td>{{ res.cust_segment }}</td>
+          <td>{{ '%.2f'|format(res.credit_card_probability) }}</td>
+          <td>{{ '%.2f'|format(res.home_loan_probability) }}</td>
+          <td>{{ '%.2f'|format(res.personal_loan_probability) }}</td>
+          <td>{{ '%.2f'|format(res.credit_card_limit) }}</td>
+          <td>{{ '%.2f'|format(res.home_loan_limit) }}</td>
+          <td>{{ '%.2f'|format(res.personal_loan_limit) }}</td>
+          <td>{{ res.recommended_product }}</td>
+          <td>{{ res.insight }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="no-data">No recommendation results available.</p>
+  {% endif %}
+
+  <!-- Segment Chart Form -->
+  <h2 style="margin-top:40px;">Segment Chart</h2>
+  <form method="post">
+    <label for="run_date">Select Run Date:</label>
+    <select name="run_date" id="run_date">
+      <option value="">--Select--</option>
+      {% for rd in run_dates %}
+        <option value="{{ rd }}" {% if rd == selected_date %}selected{% endif %}>{{ rd }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Show Chart</button>
+  </form>
+
+  {% if selected_date %}
+    {% if segment_counts %}
+      <h3>Segment Chart for {{ selected_date }}</h3>
+      <canvas id="segmentChart" width="400" height="300"></canvas>
+      <script>
+        const ctx = document.getElementById('segmentChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: {{ segment_counts|map(attribute='cust_segment')|list|tojson }},
+            datasets: [{
+              label: 'Customer Count',
+              data: {{ segment_counts|map(attribute='customer_count')|list|tojson }},
+              backgroundColor: 'rgba(54, 162, 235, 0.7)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                precision: 0,
+                stepSize: 1
+              }
+            }
+          }
+        });
+      </script>
+    {% else %}
+      <p class="no-data">No segment data available for {{ selected_date }}.</p>
+    {% endif %}
+  {% endif %}
+
+  <p style="margin-top: 30px;">
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+  </p>
+</body>
+</html>

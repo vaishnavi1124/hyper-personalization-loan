@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Recommendation System - Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 15px;
+    }
+    a.button-link {
+      display: inline-block;
+      padding: 10px 16px;
+      background: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Customer Recommendation System</h1>
+  <ul>
+    <li>
+      <a class="button-link" href="{{ url_for('export_customers') }}">1. Export Customer Data as CSV</a>
+    </li>
+    <li>
+      <a class="button-link" href="{{ url_for('upload_csv') }}">2. Upload CSV and Process Recommendations</a>
+    </li>
+    <li>
+      <a class="button-link" href="{{ url_for('view_results') }}">3. View Stored Recommendations</a>
+    </li>
+  </ul>
+</body>
+</html>
